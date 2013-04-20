@@ -25,15 +25,100 @@ public class HeadMojo extends AbstractMojo
      * @readonly
      */
     private MavenProject project;
+
     /**
-     * @parameter
+     * @parameter expression="${githead.gitLocation}"
      */
     public File gitLocation = new File("." + File.separator + ".git");
+
+    /**
+     * @parameter expression="${githead.defaultBranch}"
+     */
+    public String defaultBranch = "unknown";
+
+    /**
+     * @parameter expression="${githead.defaultCommit}
+     */
+    public String defaultCommit = "unknown";
 
     private final String HEAD_FILE_NAME = "HEAD";
     private final String HEAD_REF_PREFIX = "ref:";
 
     public void execute() throws MojoExecutionException, MojoFailureException
+    {
+        String branch = null;
+        String commit = null;
+
+        String ref = this.readRef();
+        if (ref != null)
+        {
+            branch = refToBranch(ref);
+            commit = readHeadCommit(ref);
+        }
+
+        if (branch == null)
+        {
+            branch = this.defaultBranch;
+        }
+        if (commit == null)
+        {
+            commit = this.defaultCommit;
+        }
+
+        Properties properties = this.project.getProperties();
+        properties.put("githead.branch", branch);
+        properties.put("githead.commit", commit);
+    }
+
+    private static String refToBranch(String ref)
+    {
+        String[] parts = ref.split("/");
+        return parts[parts.length - 1];
+    }
+
+    private String readHeadCommit(String ref)
+    {
+        File refFile = new File(this.gitLocation, ref);
+
+        BufferedReader reader = null;
+        String commitHash = null;
+        try
+        {
+            reader = new BufferedReader(new FileReader(refFile));
+
+            while ((commitHash = reader.readLine()) != null)
+            {
+                commitHash = commitHash.trim();
+                if (!commitHash.isEmpty())
+                {
+                    break;
+                }
+            }
+        }
+        catch (FileNotFoundException e)
+        {
+            getLog().warn("The file " + refFile.getPath() + " could not be found!", e);
+        }
+        catch (IOException e)
+        {
+            getLog().warn("Failed to read the ref file", e);
+        }
+        finally
+        {
+            if (reader != null)
+            {
+                try
+                {
+                    reader.close();
+                }
+                catch (IOException ignored)
+                {}
+            }
+        }
+        return ref;
+    }
+
+    private String readRef()
     {
         File headFile = new File(this.gitLocation, HEAD_FILE_NAME);
 
@@ -57,11 +142,11 @@ public class HeadMojo extends AbstractMojo
         }
         catch (FileNotFoundException e)
         {
-            throw new MojoFailureException("The file " + headFile.getPath() + " could not be found!", e);
+            getLog().warn("The file " + headFile.getPath() + " could not be found!", e);
         }
         catch (IOException e)
         {
-            throw new MojoFailureException("Failed to read the " + HEAD_FILE_NAME + " file", e);
+            getLog().warn("Failed to read the " + HEAD_FILE_NAME + " file", e);
         }
         finally
         {
@@ -75,57 +160,6 @@ public class HeadMojo extends AbstractMojo
                 {}
             }
         }
-
-
-        if (refPath == null)
-        {
-            throw new MojoFailureException("The " + HEAD_FILE_NAME + " file did not container a ref");
-        }
-
-        reader = null;
-        String commitHash = null;
-        File refFile = new File(this.gitLocation, refPath);
-        try
-        {
-            reader = new BufferedReader(new FileReader(refFile));
-
-            while ((commitHash = reader.readLine()) != null)
-            {
-                commitHash = commitHash.trim();
-                if (!commitHash.isEmpty())
-                {
-                    break;
-                }
-            }
-        }
-        catch (FileNotFoundException e)
-        {
-            throw new MojoFailureException("The file " + refFile.getPath() + " could not be found!", e);
-        }
-        catch (IOException e)
-        {
-            throw new MojoFailureException("Failed to read the " + HEAD_FILE_NAME + " file", e);
-        }
-        finally
-        {
-            if (reader != null)
-            {
-                try
-                {
-                    reader.close();
-                }
-                catch (IOException ignored)
-                {}
-            }
-        }
-
-        if (commitHash == null)
-        {
-            throw new MojoFailureException("Could not read the commit hash from " + refFile.getPath() + "!");
-        }
-
-        Properties properties = this.project.getProperties();
-        properties.put("githead.branch", refFile.getName());
-        properties.put("githead.commit", commitHash);
+        return refPath;
     }
 }
