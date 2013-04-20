@@ -17,6 +17,7 @@ import java.util.Properties;
  *
  * @goal head
  * @phase process-sources
+ * @threadSafe
  */
 public class HeadMojo extends AbstractMojo
 {
