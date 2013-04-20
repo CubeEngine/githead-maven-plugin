@@ -34,6 +34,11 @@ public class HeadMojo extends AbstractMojo
     public File repoLocation = new File(".");
 
     /**
+     * @parameter
+     */
+    public boolean searchParentDirectories = true;
+
+    /**
      * @parameter expression="${githead.defaultBranch}"
      */
     public String defaultBranch = "unknown";
@@ -45,10 +50,27 @@ public class HeadMojo extends AbstractMojo
 
     private final String HEAD_FILE_NAME = "HEAD";
     private final String HEAD_REF_PREFIX = "ref:";
-    private final String GIT_FOLDER = ".git" + File.separator;
+    private final String GIT_FOLDER = ".git";
 
     public void execute() throws MojoExecutionException, MojoFailureException
     {
+        File repo = this.repoLocation;
+        File tmp;
+        do
+        {
+            tmp = new File(repo, GIT_FOLDER);
+            if (tmp.exists() && tmp.isDirectory())
+            {
+                break;
+            }
+        }
+        while (this.searchParentDirectories && (repo = repo.getParentFile()) != null);
+
+        if (repo == null || !repo.exists() || !repo.isDirectory())
+        {
+            throw new MojoFailureException("No valid git repository found!");
+        }
+
         String branch = null;
         String commit = null;
 
@@ -83,7 +105,7 @@ public class HeadMojo extends AbstractMojo
 
     private String readHeadCommit(String ref)
     {
-        File refFile = new File(this.repoLocation, GIT_FOLDER + ref);
+        File refFile = new File(this.repoLocation, GIT_FOLDER + File.separator + ref);
 
         BufferedReader reader = null;
         String commitHash = null;
@@ -125,7 +147,7 @@ public class HeadMojo extends AbstractMojo
 
     private String readRef()
     {
-        File headFile = new File(this.repoLocation, GIT_FOLDER + HEAD_FILE_NAME);
+        File headFile = new File(this.repoLocation, GIT_FOLDER + File.separator + HEAD_FILE_NAME);
 
         BufferedReader reader = null;
         String refPath = null;
