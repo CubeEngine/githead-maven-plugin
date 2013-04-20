@@ -38,7 +38,7 @@ public class HeadMojo extends AbstractMojo
     public String defaultBranch = "unknown";
 
     /**
-     * @parameter expression="${githead.defaultCommit}
+     * @parameter expression="${githead.defaultCommit}"
      */
     public String defaultCommit = "unknown";
 
