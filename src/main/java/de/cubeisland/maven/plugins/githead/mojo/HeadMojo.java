@@ -16,6 +16,7 @@ import java.util.Properties;
  * This mojo adds the git head hash as a variable
  *
  * @goal head
+ * @phase process-sources
  */
 public class HeadMojo extends AbstractMojo
 {
@@ -27,9 +28,9 @@ public class HeadMojo extends AbstractMojo
     private MavenProject project;
 
     /**
-     * @parameter expression="${githead.gitLocation}"
+     * @parameter expression="${githead.repoLocation}"
      */
-    public File gitLocation = new File("." + File.separator + ".git");
+    public File repoLocation = new File(".");
 
     /**
      * @parameter expression="${githead.defaultBranch}"
@@ -43,6 +44,7 @@ public class HeadMojo extends AbstractMojo
 
     private final String HEAD_FILE_NAME = "HEAD";
     private final String HEAD_REF_PREFIX = "ref:";
+    private final String GIT_FOLDER = ".git" + File.separator;
 
     public void execute() throws MojoExecutionException, MojoFailureException
     {
@@ -68,6 +70,8 @@ public class HeadMojo extends AbstractMojo
         Properties properties = this.project.getProperties();
         properties.put("githead.branch", branch);
         properties.put("githead.commit", commit);
+
+        getLog().info("Found: " + branch + "/" + commit);
     }
 
     private static String refToBranch(String ref)
@@ -78,7 +82,7 @@ public class HeadMojo extends AbstractMojo
 
     private String readHeadCommit(String ref)
     {
-        File refFile = new File(this.gitLocation, ref);
+        File refFile = new File(this.repoLocation, GIT_FOLDER + ref);
 
         BufferedReader reader = null;
         String commitHash = null;
@@ -115,12 +119,12 @@ public class HeadMojo extends AbstractMojo
                 {}
             }
         }
-        return ref;
+        return commitHash;
     }
 
     private String readRef()
     {
-        File headFile = new File(this.gitLocation, HEAD_FILE_NAME);
+        File headFile = new File(this.repoLocation, GIT_FOLDER + HEAD_FILE_NAME);
 
         BufferedReader reader = null;
         String refPath = null;
