@@ -4,7 +4,7 @@
 
     <groupId>de.cubeisland.maven.plugins</groupId>
     <artifactId>githead-maven-plugin</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
 
     <licenses>
@@ -24,7 +24,7 @@
         <url>https://github.com/CubeEngineDev/githead-maven-plugin</url>
         <connection>scm:git:https://github.com/CubeEngineDev/githead-maven-plugin</connection>
         <developerConnection>scm:git:https://github.com/CubeEngineDev/githead-maven-plugin</developerConnection>
-        <tag>1.0.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
