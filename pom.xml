@@ -7,6 +7,10 @@
     <version>1.0.1-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
 
+    <description>
+        This maven plugin reads git's HEAD pointer and provides the current branch and commit via variables.
+    </description>
+
     <licenses>
         <license>
             <name>The MIT License (MIT)</name>
