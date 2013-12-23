@@ -94,19 +94,21 @@ public class HeadMojo extends AbstractMojo
         }
         while (this.searchParentDirectories && (repo = repo.getParentFile()) != null);
 
-        if (repo == null || !repo.exists() || !repo.isDirectory())
-        {
-            throw new MojoFailureException("No valid git repository found! Started from: " + this.repoLocation.getAbsolutePath());
-        }
-
         String branch = null;
         String commit = null;
 
-        String ref = this.readRef(repo);
-        if (ref != null)
+        if (repo != null && repo.exists() && repo.isDirectory())
         {
-            branch = refToBranch(ref);
-            commit = readHeadCommit(repo, ref);
+            String ref = this.readRef(repo);
+            if (ref != null)
+            {
+                branch = refToBranch(ref);
+                commit = readHeadCommit(repo, ref);
+            }
+        }
+        else
+        {
+            getLog().warn("No valid git repository found! Started from: " + this.repoLocation.getAbsolutePath());
         }
 
         if (branch == null)
@@ -128,7 +130,12 @@ public class HeadMojo extends AbstractMojo
     private static String refToBranch(String ref)
     {
         String[] parts = ref.split("/");
-        return parts[parts.length - 1];
+        String branch = parts[parts.length - 1].trim();
+        if (branch.equals(""))
+        {
+            return null;
+        }
+        return branch;
     }
 
     private String readHeadCommit(File repo, String ref)
