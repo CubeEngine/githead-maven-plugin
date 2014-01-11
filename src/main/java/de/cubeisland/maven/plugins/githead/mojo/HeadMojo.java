@@ -51,28 +51,28 @@ public class HeadMojo extends AbstractMojo
     private MavenProject project;
 
     /**
-     * @parameter expression="${githead.repoLocation}"
+     * @parameter property="githead.repoLocation" default-value="${project.basedir}"
      */
-    public File repoLocation = new File(".");
+    public File repoLocation;
 
     /**
-     * @parameter
+     * @parameter property="githead.searchParentDirectories"
      */
     public boolean searchParentDirectories = true;
 
     /**
-     * @parameter expression="${githead.defaultBranch}"
+     * @parameter property="githead.defaultBranch"
      */
     public String defaultBranch = "unknown";
 
     /**
-     * @parameter expression="${githead.defaultCommit}"
+     * @parameter property="githead.defaultCommit"
      */
     public String defaultCommit = "unknown";
 
-    private final String HEAD_FILE_NAME = "HEAD";
-    private final String HEAD_REF_PREFIX = "ref:";
-    private final String GIT_FOLDER = ".git";
+    private static final String HEAD_FILE_NAME = "HEAD";
+    private static final String HEAD_REF_PREFIX = "ref:";
+    private static final String GIT_FOLDER = ".git";
 
     public void execute() throws MojoExecutionException, MojoFailureException
     {
