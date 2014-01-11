@@ -77,18 +77,22 @@ public class HeadMojo extends AbstractMojo
     public void execute() throws MojoExecutionException, MojoFailureException
     {
         File repo = this.repoLocation.getAbsoluteFile();
+        getLog().info("Default location: " + repo.getAbsolutePath());
         try
         {
             repo = repo.getCanonicalFile();
+            getLog().info("Default canonical location: " + repo.getAbsolutePath());
         }
         catch (IOException ignored)
         {}
         File tmp;
         do
         {
+            getLog().info("Searching in: " + repo.getAbsolutePath());
             tmp = new File(repo, GIT_FOLDER);
             if (tmp.exists() && tmp.isDirectory())
             {
+                getLog().info("Found at: " + repo.getAbsolutePath());
                 break;
             }
         }
