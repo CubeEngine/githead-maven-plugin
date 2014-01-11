@@ -51,22 +51,22 @@ public class HeadMojo extends AbstractMojo
     private MavenProject project;
 
     /**
-     * @parameter property="githead.repoLocation" default-value="${project.basedir}"
+     * @parameter default-value="${project.basedir}"
      */
     public File repoLocation;
 
     /**
-     * @parameter property="githead.searchParentDirectories"
+     * @parameter
      */
     public boolean searchParentDirectories = true;
 
     /**
-     * @parameter property="githead.defaultBranch"
+     * @parameter
      */
     public String defaultBranch = "unknown";
 
     /**
-     * @parameter property="githead.defaultCommit"
+     * @parameter
      */
     public String defaultCommit = "unknown";
 
