@@ -77,14 +77,13 @@ public class HeadMojo extends AbstractMojo
     public void execute() throws MojoExecutionException, MojoFailureException
     {
         File repo = this.repoLocation.getAbsoluteFile();
-        getLog().info("Default location: " + repo.getAbsolutePath());
         try
         {
             repo = repo.getCanonicalFile();
-            getLog().info("Default canonical location: " + repo.getAbsolutePath());
         }
         catch (IOException ignored)
         {}
+        getLog().info("Default location: " + repo.getAbsolutePath());
         File tmp;
         do
         {
@@ -103,11 +102,20 @@ public class HeadMojo extends AbstractMojo
 
         if (repo != null && repo.exists() && repo.isDirectory())
         {
-            String ref = this.readRef(repo);
-            if (ref != null)
+            final String head = this.readHead(repo);
+            if (head != null)
             {
-                branch = refToBranch(ref);
-                commit = readHeadCommit(repo, ref);
+                getLog().info("HEAD: " + head);
+                if (head.startsWith(HEAD_REF_PREFIX))
+                {
+                    final String ref = head.substring(HEAD_REF_PREFIX.length()).trim();
+                    branch = refToBranch(ref);
+                    commit = readHeadCommit(repo, ref);
+                }
+                else
+                {
+                    commit = head.trim();
+                }
             }
         }
         else
@@ -184,27 +192,20 @@ public class HeadMojo extends AbstractMojo
         return commitHash;
     }
 
-    private String readRef(File repo)
+    private String readHead(File repo)
     {
         File headFile = new File(repo, GIT_FOLDER + File.separator + HEAD_FILE_NAME);
 
         BufferedReader reader = null;
-        String refPath = null;
         try
         {
             reader = new BufferedReader(new FileReader(headFile));
 
-            String line;
-            while ((line = reader.readLine()) != null)
+            String line = reader.readLine();
+            if (line != null)
             {
-                line = line.trim();
-                if (line.toLowerCase().startsWith(HEAD_REF_PREFIX))
-                {
-                    refPath = line.substring(HEAD_REF_PREFIX.length()).trim();
-                    break;
-                }
+                return line.trim();
             }
-
         }
         catch (FileNotFoundException e)
         {
@@ -226,6 +227,6 @@ public class HeadMojo extends AbstractMojo
                 {}
             }
         }
-        return refPath;
+        return null;
     }
 }
