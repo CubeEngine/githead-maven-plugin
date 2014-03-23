@@ -29,9 +29,12 @@ import org.apache.maven.project.MavenProject;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.Properties;
 
 /**
@@ -53,28 +56,30 @@ public class HeadMojo extends AbstractMojo
     /**
      * @parameter default-value="${project.basedir}"
      */
-    public File repoLocation = null;
+    protected File repoLocation = null;
 
     /**
      * @parameter
      */
-    public boolean searchParentDirectories = true;
+    protected boolean searchParentDirectories = true;
 
     /**
      * @parameter
      */
-    public String defaultBranch = "unknown";
+    protected String defaultBranch = "unknown";
 
     /**
      * @parameter
      */
-    public String defaultCommit = "unknown";
+    protected String defaultCommit = this.defaultBranch;
 
     private static final String HEAD_FILE_NAME = "HEAD";
     private static final String HEAD_REF_PREFIX = "ref:";
     private static final String GIT_FOLDER = ".git";
 
-    public void execute() throws MojoExecutionException, MojoFailureException
+    private static final Charset CHARSET = Charset.forName("UTF-8");
+
+    public void execute() throws MojoExecutionException
     {
         File repo = this.repoLocation.getAbsoluteFile();
         try
@@ -145,7 +150,7 @@ public class HeadMojo extends AbstractMojo
     {
         String[] parts = ref.split("/");
         String branch = parts[parts.length - 1].trim();
-        if (branch.equals(""))
+        if ("".equals(branch))
         {
             return null;
         }
@@ -160,7 +165,7 @@ public class HeadMojo extends AbstractMojo
         String commitHash = null;
         try
         {
-            reader = new BufferedReader(new FileReader(refFile));
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(refFile), CHARSET));
 
             while ((commitHash = reader.readLine()) != null)
             {
@@ -189,7 +194,7 @@ public class HeadMojo extends AbstractMojo
                 }
                 catch (IOException e)
                 {
-                    getLog().debug("Failed to close the HEAD file!", e);
+                    getLog().debug("Failed to close the ref file!", e);
                 }
             }
         }
@@ -203,7 +208,7 @@ public class HeadMojo extends AbstractMojo
         BufferedReader reader = null;
         try
         {
-            reader = new BufferedReader(new FileReader(headFile));
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(headFile), CHARSET));
 
             String line = reader.readLine();
             if (line != null)
