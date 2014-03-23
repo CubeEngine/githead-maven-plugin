@@ -48,12 +48,12 @@ public class HeadMojo extends AbstractMojo
      * @required
      * @readonly
      */
-    private MavenProject project;
+    private MavenProject project = null;
 
     /**
      * @parameter default-value="${project.basedir}"
      */
-    public File repoLocation;
+    public File repoLocation = null;
 
     /**
      * @parameter
@@ -81,8 +81,10 @@ public class HeadMojo extends AbstractMojo
         {
             repo = repo.getCanonicalFile();
         }
-        catch (IOException ignored)
-        {}
+        catch (IOException e)
+        {
+            getLog().debug("Failed to canonicalize the repo path!", e);
+        }
         getLog().info("Default location: " + repo.getAbsolutePath());
         File tmp;
         do
@@ -163,7 +165,7 @@ public class HeadMojo extends AbstractMojo
             while ((commitHash = reader.readLine()) != null)
             {
                 commitHash = commitHash.trim();
-                if (!commitHash.isEmpty())
+                if (!"".equals(commitHash))
                 {
                     break;
                 }
@@ -185,8 +187,10 @@ public class HeadMojo extends AbstractMojo
                 {
                     reader.close();
                 }
-                catch (IOException ignored)
-                {}
+                catch (IOException e)
+                {
+                    getLog().debug("Failed to close the HEAD file!", e);
+                }
             }
         }
         return commitHash;
@@ -223,8 +227,10 @@ public class HeadMojo extends AbstractMojo
                 {
                     reader.close();
                 }
-                catch (IOException ignored)
-                {}
+                catch (IOException e)
+                {
+                    getLog().debug("Failed to close the HEAD file!", e);
+                }
             }
         }
         return null;
