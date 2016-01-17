@@ -39,7 +39,7 @@ import java.util.Properties;
  * This mojo adds the git head hash as a variable
  *
  * @goal head
- * @phase process-sources
+ * @phase initialize
  * @threadSafe
  */
 public class HeadMojo extends AbstractMojo
