@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package de.cubeisland.maven.plugins.githead.mojo;
+package org.cubeengine.maven.plugins.githead.mojo;
 
 import java.io.File;
 import java.io.IOException;
